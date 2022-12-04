@@ -10,7 +10,7 @@
 "use strict";
 
 // User configurable.
-const ROM_FILENAME = 'porklike.gb';
+const ROM_FILENAME = 'GB-Project-DevOps.gb';
 const ENABLE_FAST_FORWARD = true;
 const ENABLE_REWIND = true;
 const ENABLE_PAUSE = false;
@@ -33,7 +33,7 @@ const CGB_COLOR_CURVE = 2;    // 0: none, 1: Sameboy "Emulate Hardware" 2: Gamba
 //
 const DEFAULT_PALETTE_IDX = 79;
 const PALETTES = [
-  0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16,
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
   17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,
   34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
   51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
@@ -158,11 +158,11 @@ class Emulator {
     const size = (romBuffer.byteLength + 0x7fff) & ~0x7fff;
     this.romDataPtr = this.module._malloc(size);
     makeWasmBuffer(this.module, this.romDataPtr, size)
-        .fill(0)
-        .set(new Uint8Array(romBuffer));
+      .fill(0)
+      .set(new Uint8Array(romBuffer));
     this.e = this.module._emulator_new_simple(
-        this.romDataPtr, size, Audio.ctx.sampleRate, AUDIO_FRAMES,
-        CGB_COLOR_CURVE);
+      this.romDataPtr, size, Audio.ctx.sampleRate, AUDIO_FRAMES,
+      CGB_COLOR_CURVE);
     if (this.e == 0) {
       throw new Error('Invalid ROM.');
     }
@@ -201,8 +201,8 @@ class Emulator {
   withNewFileData(cb) {
     const fileDataPtr = this.module._ext_ram_file_data_new(this.e);
     const buffer = makeWasmBuffer(
-        this.module, this.module._get_file_data_ptr(fileDataPtr),
-        this.module._get_file_data_size(fileDataPtr));
+      this.module, this.module._get_file_data_ptr(fileDataPtr),
+      this.module._get_file_data_size(fileDataPtr));
     const result = cb(fileDataPtr, buffer);
     this.module._file_data_delete(fileDataPtr);
     return result;
@@ -280,7 +280,7 @@ class Emulator {
         const oldest = this.rewind.oldestTicks;
         const start = this.ticks;
         const delta =
-            REWIND_FACTOR * REWIND_UPDATE_MS / 1000 * CPU_TICKS_PER_SECOND;
+          REWIND_FACTOR * REWIND_UPDATE_MS / 1000 * CPU_TICKS_PER_SECOND;
         const rewindTo = Math.max(oldest, start - delta);
         this.rewindToTicks(rewindTo);
         vm.ticks = emulator.ticks;
@@ -336,7 +336,7 @@ class Emulator {
 
       const startTimeMs = performance.now();
       const deltaTicks =
-          Math.min(deltaSec, MAX_UPDATE_SEC) * CPU_TICKS_PER_SECOND;
+        Math.min(deltaSec, MAX_UPDATE_SEC) * CPU_TICKS_PER_SECOND;
       let runUntilTicks = this.ticks + deltaTicks - this.leftoverTicks;
       this.runUntil(runUntilTicks);
       const deltaTimeMs = performance.now() - startTimeMs;
@@ -572,8 +572,8 @@ class Audio {
     this.started = false;
     this.module = module;
     this.buffer = makeWasmBuffer(
-        this.module, this.module._get_audio_buffer_ptr(e),
-        this.module._get_audio_buffer_capacity(e));
+      this.module, this.module._get_audio_buffer_ptr(e),
+      this.module._get_audio_buffer_capacity(e));
     this.startSec = 0;
     this.resume();
 
@@ -615,8 +615,8 @@ class Audio {
       this.startSec += bufferSec;
     } else {
       console.log(
-          'Resetting audio (' + this.startSec.toFixed(2) + ' < ' +
-          nowSec.toFixed(2) + ')');
+        'Resetting audio (' + this.startSec.toFixed(2) + ' < ' +
+        nowSec.toFixed(2) + ')');
       this.startSec = nowPlusLatency;
     }
   }
@@ -651,8 +651,8 @@ class Video {
       }
     }
     this.buffer = makeWasmBuffer(
-        this.module, this.module._get_frame_buffer_ptr(e),
-        this.module._get_frame_buffer_size(e));
+      this.module, this.module._get_frame_buffer_ptr(e),
+      this.module._get_frame_buffer_size(e));
   }
 
   uploadTexture() {
@@ -681,7 +681,7 @@ class Canvas2DRenderer {
 
 class WebGLRenderer {
   constructor(el) {
-    const gl = this.gl = el.getContext('webgl', {preserveDrawingBuffer: true});
+    const gl = this.gl = el.getContext('webgl', { preserveDrawingBuffer: true });
     if (gl === null) {
       throw new Error('unable to create webgl context');
     }
@@ -691,16 +691,16 @@ class WebGLRenderer {
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-      -1, -1,  0, h,
-      +1, -1,  w, h,
-      -1, +1,  0, 0,
-      +1, +1,  w, 0,
+      -1, -1, 0, h,
+      +1, -1, w, h,
+      -1, +1, 0, 0,
+      +1, +1, w, 0,
     ]), gl.STATIC_DRAW);
 
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(
-        gl.TEXTURE_2D, 0, gl.RGBA, 256, 256, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      gl.TEXTURE_2D, 0, gl.RGBA, 256, 256, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
@@ -715,7 +715,7 @@ class WebGLRenderer {
     }
 
     const vertexShader = compileShader(gl.VERTEX_SHADER,
-       `attribute vec2 aPos;
+      `attribute vec2 aPos;
         attribute vec2 aTexCoord;
         varying highp vec2 vTexCoord;
         void main(void) {
@@ -723,7 +723,7 @@ class WebGLRenderer {
           vTexCoord = aTexCoord;
         }`);
     const fragmentShader = compileShader(gl.FRAGMENT_SHADER,
-       `varying highp vec2 vTexCoord;
+      `varying highp vec2 vTexCoord;
         uniform sampler2D uSampler;
         void main(void) {
           gl_FragColor = texture2D(uSampler, vTexCoord);
@@ -757,8 +757,8 @@ class WebGLRenderer {
 
   uploadTexture(buffer) {
     this.gl.texSubImage2D(
-        this.gl.TEXTURE_2D, 0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, this.gl.RGBA,
-        this.gl.UNSIGNED_BYTE, buffer);
+      this.gl.TEXTURE_2D, 0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, this.gl.RGBA,
+      this.gl.UNSIGNED_BYTE, buffer);
   }
 }
 
@@ -769,7 +769,7 @@ class Rewind {
     this.joypadBufferPtr = this.module._joypad_new();
     this.statePtr = 0;
     this.bufferPtr = this.module._rewind_new_simple(
-        e, REWIND_FRAMES_PER_BASE_STATE, REWIND_BUFFER_CAPACITY);
+      e, REWIND_FRAMES_PER_BASE_STATE, REWIND_BUFFER_CAPACITY);
     this.module._emulator_set_default_joypad_callback(e, this.joypadBufferPtr);
   }
 
@@ -799,19 +799,19 @@ class Rewind {
   beginRewind() {
     if (this.isRewinding) return;
     this.statePtr =
-        this.module._rewind_begin(this.e, this.bufferPtr, this.joypadBufferPtr);
+      this.module._rewind_begin(this.e, this.bufferPtr, this.joypadBufferPtr);
   }
 
   rewindToTicks(ticks) {
     if (!this.isRewinding) return;
     return this.module._rewind_to_ticks_wrapper(this.statePtr, ticks) ===
-        RESULT_OK;
+      RESULT_OK;
   }
 
   endRewind() {
     if (!this.isRewinding) return;
     this.module._emulator_set_default_joypad_callback(
-        this.e, this.joypadBufferPtr);
+      this.e, this.joypadBufferPtr);
     this.module._rewind_end(this.statePtr);
     this.statePtr = 0;
   }

@@ -7,3 +7,5 @@
 __pycache__
 *.pyc
 imgui.ini
+/.github
+/.vscode
